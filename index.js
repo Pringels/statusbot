@@ -18,6 +18,8 @@ let current = null;
 let allUpdates = [];
 let allowed = false;
 
+let scheduleRegistry = {};
+
 fireBaseInterface.init();
 serverInterface.init(fireBaseInterface);
 
@@ -64,6 +66,8 @@ var dailyJ = schedule.scheduleJob(dailyRule, function() {
 });
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
+	let foo = fireBaseInterface.getUpdate(message.user);
+	console.log('FOO', foo);
 	if (message.channel === im && message.user === channel && current) {
 		if (!update) {
 			let d = new Date();
@@ -126,32 +130,46 @@ rtm.on(CLIENT_EVENTS.RTM.RTM_CONNECTION_OPENED, function() {
 		}
 	});
 
-	fireBaseInterface.on('users', 'value', values => {
-		let user = values['U6E132Y20'];
-		var rule = new schedule.RecurrenceRule();
-		rule.dayOfWeek = [1, new schedule.Range(2, 5)];
-		rule.hour = user.updateTime.split(':')[0];
-		rule.minute = user.updateTime.split(':')[1];
+	fireBaseInterface.on(
+		'users',
+		'value',
+		users => {
+			for (key in users) {
+				updateUser(users[key], key);
+			}
+		},
+		true
+	);
 
-		var j = schedule.scheduleJob(rule, function() {
-			update = null;
-			current = 'yesterday';
-			console.log('CRON!');
-			web.chat.postMessage(
-				'@peter',
-				'What did you do yesterday?',
-				{ as_user: true },
-				function(err, res) {
-					if (err) {
-						console.log('Error:', err);
-					} else {
-						console.log('Message sent: ', res);
-					}
-				}
-			);
-		});
-	});
+	fireBaseInterface.on('users', 'child_changed', updateUser);
 });
+
+function updateUser(user, key) {
+	var rule = new schedule.RecurrenceRule();
+	rule.dayOfWeek = [1, new schedule.Range(2, 5)];
+	rule.hour = user.updateTime.split(':')[0];
+	rule.minute = user.updateTime.split(':')[1];
+
+	scheduleRegistry[key] && scheduleRegistry[key].cancel();
+	var j = schedule.scheduleJob(rule, function() {
+		update = null;
+		current = 'yesterday';
+		web.chat.postMessage(
+			'@' + user.name,
+			'What did you do yesterday?',
+			{ as_user: true },
+			function(err, res) {
+				if (err) {
+					console.log('Error:', err);
+				} else {
+					console.log('Message sent: ', res);
+				}
+			}
+		);
+	});
+
+	scheduleRegistry[key] = j;
+}
 
 var web = new WebClient(bot_token);
 // web.chat.postMessage('@peter', '', { as_user: true, attachments: attachments }, function(err, res) {

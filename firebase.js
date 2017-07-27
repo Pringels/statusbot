@@ -16,6 +16,10 @@ const fireBaseInterface = {
 		initApp();
 	},
 
+	getUpdate(user) {
+		return firebase.database().ref('updates').child(user);
+	},
+
 	postUpdate(update) {
 		return firebase.database().ref('updates').push(update);
 	},
@@ -41,12 +45,21 @@ const fireBaseInterface = {
 		return firebase.database().ref('users').child(id).remove();
 	},
 
-	on(type, event, fn) {
-		var messagesRef = firebase.database().ref(type).limitToLast(1);
-		messagesRef.on(event, dataSnapshot => {
-			let values = dataSnapshot.val();
-			fn(values);
-		});
+	on(type, event, fn, once = false) {
+		var messagesRef = firebase.database().ref(type);
+		if (once) {
+			messagesRef.once(event, dataSnapshot => {
+				let values = dataSnapshot.val();
+				let key = dataSnapshot.key;
+				fn(values, key);
+			});
+		} else {
+			messagesRef.on(event, dataSnapshot => {
+				let values = dataSnapshot.val();
+				let key = dataSnapshot.key;
+				fn(values, key);
+			});
+		}
 	}
 };
 
