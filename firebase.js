@@ -24,6 +24,23 @@ const fireBaseInterface = {
 		update.update(data);
 	},
 
+	createUser(id, name) {
+		return firebase.database().ref('users').child(id).set({
+			name,
+			updateTime: '08:30'
+		});
+	},
+
+	setUpdateTime(id, time) {
+		return firebase.database().ref('users').child(id).update({
+			updateTime: time
+		});
+	},
+
+	deleteUser(id) {
+		return firebase.database().ref('users').child(id).remove();
+	},
+
 	on(type, event, fn) {
 		var messagesRef = firebase.database().ref(type).limitToLast(1);
 		messagesRef.on(event, dataSnapshot => {

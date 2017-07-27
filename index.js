@@ -3,6 +3,7 @@ var WebClient = require('@slack/client').WebClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 var CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS;
 var fireBaseInterface = require('./firebase.js');
+var serverInterface = require('./server.js');
 var schedule = require('node-schedule');
 
 var bot_token = process.env.SLACK_BOT_TOKEN;
@@ -18,6 +19,7 @@ let allUpdates = [];
 let allowed = false;
 
 fireBaseInterface.init();
+serverInterface.init(fireBaseInterface);
 
 var dailyRule = new schedule.RecurrenceRule();
 dailyRule.dayOfWeek = [1, new schedule.Range(2, 5)];
