@@ -47,7 +47,7 @@ function commandRouter({ user_id, user_name, text }, response) {
 			break;
 		default:
 			response.end(
-				'Type "register" to register yourself with me.\nType "time" to let me know when I should slack you. EG "time 16:20"\nType "cancel" if you want me to stop spamming you.'
+				'Type "register" if you would like me to do your status updates for you.\nType "time" to let me know when I should slack you. EG "time 16:20"\nType "cancel" if you want me to stop spamming you.'
 			);
 			break;
 	}
