@@ -17,7 +17,11 @@ const fireBaseInterface = {
 	},
 
 	getUpdate(user) {
-		return firebase.database().ref('updates').child(user);
+		return firebase.database().ref('updates').orderByChild('user').equalTo(user).limitToLast(1);
+	},
+
+	getUser(id) {
+		return firebase.database().ref('users').child(id);
 	},
 
 	postUpdate(update) {
@@ -31,7 +35,7 @@ const fireBaseInterface = {
 	createUser(id, name) {
 		return firebase.database().ref('users').child(id).set({
 			name,
-			updateTime: '08:30'
+			updateTime: '8:30'
 		});
 	},
 

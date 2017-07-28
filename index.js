@@ -12,11 +12,12 @@ var rtm = new RtmClient(bot_token);
 
 let channel;
 let statusChannel;
-let im;
+//let im;
 let update;
 let current = null;
 let allUpdates = [];
 let allowed = false;
+let ims = {};
 
 let scheduleRegistry = {};
 
@@ -25,12 +26,10 @@ serverInterface.init(fireBaseInterface);
 
 var dailyRule = new schedule.RecurrenceRule();
 dailyRule.dayOfWeek = [1, new schedule.Range(2, 5)];
-dailyRule.hour = 18;
-dailyRule.minute = 21;
+dailyRule.hour = 17;
+dailyRule.minute = 00;
 
 var dailyJ = schedule.scheduleJob(dailyRule, function() {
-	console.log('CRON UPDATE!');
-
 	let attachments = [
 		{
 			fallback: allUpdates[0].yesterday,
@@ -66,31 +65,82 @@ var dailyJ = schedule.scheduleJob(dailyRule, function() {
 });
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-	let foo = fireBaseInterface.getUpdate(message.user);
-	console.log('FOO', foo);
-	if (message.channel === im && message.user === channel && current) {
-		if (!update) {
-			let d = new Date();
-			update = fireBaseInterface.postUpdate({
-				yesterday: message.text,
-				user: message.user,
-				date: d.toLocaleString()
+	console.log('INCOMING MESSAGE', message);
+	fireBaseInterface.getUser(message.user).once('value').then(snapshot => {
+		let user = snapshot.val();
+		let user_id = snapshot.key;
+		console.log('USER', user);
+		var now = new Date();
+		let hours = user.updateTime.split(':')[0];
+		let minutes = user.updateTime.split(':')[1];
+		if (now.getHours() >= hours && now.getMinutes() >= minutes) {
+			console.log('TIME IS GOOD');
+			fireBaseInterface.getUpdate(message.user).once('value').then(snapshot => {
+				let updates = snapshot.val();
+				update = updates ? updates[Object.keys(updates)[0]] : null;
+				let updateRef = updates ? snapshot.child(Object.keys(updates)[0]).ref : null;
+				var date = update ? new Date(update.date) : new Date();
+
+				if (
+					update &&
+					date.getDate() === now.getDate() &&
+					date.getMonth() === now.getMonth() &&
+					date.getFullYear() === now.getFullYear()
+				) {
+					console.log('SAME!');
+					if (!update.today) {
+						fireBaseInterface.editUpdate(updateRef, {
+							today: message.text
+						});
+						rtm.sendMessage('Anything standing in your way?', ims[user_id]);
+					} else if (!update.blockers) {
+						fireBaseInterface.editUpdate(updateRef, {
+							blockers: message.text
+						});
+						rtm.sendMessage('Thanks! Chat again tomorrow :)', ims[user_id]);
+					} else {
+						rtm.sendMessage(
+							'Why are you still here? I already have your status for today. Now get back to work before I report you.',
+							ims[user_id]
+						);
+					}
+				} else {
+					let d = new Date();
+					update = fireBaseInterface.postUpdate({
+						yesterday: message.text,
+						user: message.user,
+						date: d.toLocaleString()
+					});
+					rtm.sendMessage('And today?', ims[user_id]);
+				}
 			});
-			rtm.sendMessage('What will you work on today?', im);
-		} else if (current === 'yesterday') {
-			fireBaseInterface.editUpdate(update, {
-				today: message.text
-			});
-			rtm.sendMessage('Anything standing in your way?', im);
-			current = 'today';
-		} else if (current === 'today') {
-			fireBaseInterface.editUpdate(update, {
-				blockers: message.text
-			});
-			rtm.sendMessage('Thanks! Chat again tomorrow :)', im);
-			current = null;
+		} else {
+			rtm.sendMessage(
+				"I'm not ready yet! If you want to do status updates earlier then update your time with `/statusbot time hh:mm`",
+				ims[user_id]
+			);
 		}
-	}
+	});
+
+	// if (message.channel === im && message.user === channel && current) {
+	// 	if (!update) {
+	// 		let d = new Date();
+	// 		update = fireBaseInterface.postUpdate({
+	// 			yesterday: message.text,
+	// 			user: message.user,
+	// 			date: d.toLocaleString()
+	// 		});
+	// 		rtm.sendMessage('What will you work on today?', im);
+	// 	} else if (current === 'yesterday') {
+	// 		current = 'today';
+	// 	} else if (current === 'today') {
+	// 		fireBaseInterface.editUpdate(update, {
+	// 			blockers: message.text
+	// 		});
+	// 		rtm.sendMessage('Thanks! Chat again tomorrow :)', im);
+	// 		current = null;
+	// 	}
+	// }
 });
 
 // The client will emit an RTM.AUTHENTICATED event on successful connection, with the `rtm.start` payload
@@ -110,10 +160,7 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, rtmStartData => {
 	}
 
 	for (const i of rtmStartData.ims) {
-		if (i.user === channel) {
-			//console.log('IM FOUND', i);
-			im = i.id;
-		}
+		ims[i.user] = i.id;
 	}
 	console.log(
 		`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team
@@ -151,12 +198,13 @@ function updateUser(user, key) {
 	rule.minute = user.updateTime.split(':')[1];
 
 	scheduleRegistry[key] && scheduleRegistry[key].cancel();
+	console.log('ADDING NEW SCHEDULE...', user.updateTime);
 	var j = schedule.scheduleJob(rule, function() {
 		update = null;
 		current = 'yesterday';
 		web.chat.postMessage(
 			'@' + user.name,
-			'What did you do yesterday?',
+			'What did you work on yesterday?',
 			{ as_user: true },
 			function(err, res) {
 				if (err) {
