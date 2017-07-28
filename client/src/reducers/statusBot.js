@@ -1,5 +1,5 @@
 const nameInitialState = {
-	updates: ['foo', 'bar']
+	updates: []
 };
 const statusBot = (state = nameInitialState, action) => {
 	switch (action.type) {

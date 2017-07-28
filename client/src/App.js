@@ -15,11 +15,24 @@ class App extends Component {
 					To get started, edit <code>src/App.js</code> and save to reload.
 				</p>
 				<button id="quickstart-sign-in">Sign in</button>
-				{this.props.updates.map((update, i) =>
-					<h2 key={i}>
-						{update}
-					</h2>
-				)}
+				{this.props.updates.length > 0
+					? this.props.updates.map(({ today, yesterday, blockers, user }, i) =>
+							<div key={i}>
+								<h2>
+									Yesterday: {yesterday}
+								</h2>
+								<h2>
+									Today: {today}
+								</h2>
+								<h2>
+									Blockers: {blockers}
+								</h2>
+								<h3>
+									{user}
+								</h3>
+							</div>
+						)
+					: 'Connecting...'}
 			</div>
 		);
 	}
