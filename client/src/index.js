@@ -14,6 +14,9 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
 
+import injectTapEventPlugin from 'react-tap-event-plugin';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+
 let store = createStore(
 	statusBot,
 	window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
@@ -33,9 +36,11 @@ var config = {
 firebase.initializeApp(config);
 
 ReactDOM.render(
-	<Provider store={store}>
-		<App />
-	</Provider>,
+	<MuiThemeProvider>
+		<Provider store={store}>
+			<App />
+		</Provider>
+	</MuiThemeProvider>,
 	document.getElementById('root')
 );
 //registerServiceWorker();
@@ -87,6 +92,9 @@ function initApp() {
 			}
 			// The signed-in user info.
 			var user = result.user;
+			firebase.database().ref('users').on('value', dataSnapshot => {
+				store.dispatch(statusBotActions.getUsers(dataSnapshot.val()));
+			});
 			firebase.database().ref('updates').on('value', dataSnapshot => {
 				store.dispatch(statusBotActions.getUpdates(dataSnapshot.val()));
 			});

@@ -4,3 +4,10 @@ export const getUpdates = updates => {
 		updates: Object.keys(updates).map(key => updates[key])
 	};
 };
+
+export const getUsers = users => {
+	return {
+		type: 'GET_USERS',
+		users
+	};
+};

@@ -2,37 +2,48 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import logo from './logo.svg';
 import './App.css';
+import RaisedButton from 'material-ui/RaisedButton';
+
+import { List, ListItem } from 'material-ui/List';
+import ActionGrade from 'material-ui/svg-icons/action/grade';
+import { pinkA200, transparent } from 'material-ui/styles/colors';
 
 class App extends Component {
 	render() {
 		return (
 			<div className="App">
-				<div className="App-header">
-					<img src={logo} className="App-logo" alt="logo" />
-					<h2>Welcome to React</h2>
-				</div>
-				<p className="App-intro">
-					To get started, edit <code>src/App.js</code> and save to reload.
-				</p>
-				<button id="quickstart-sign-in">Sign in</button>
-				{this.props.updates.length > 0
+				<RaisedButton id="quickstart-sign-in">Sign in</RaisedButton>
+				{this.props.updates.length > 0 && Object.keys(this.props.users).length > 0
 					? this.props.updates.map(({ today, yesterday, blockers, user }, i) =>
-							<div key={i}>
-								<h2>
-									Yesterday: {yesterday}
-								</h2>
-								<h2>
-									Today: {today}
-								</h2>
-								<h2>
-									Blockers: {blockers}
-								</h2>
-								<h3>
-									{user}
-								</h3>
-							</div>
+							<ListItem
+								primaryText={this.props.users[user].name}
+								secondaryText={
+									<ul>
+										<li>
+											Yesterday: {yesterday}
+										</li>
+										<li>
+											Today: {today}
+										</li>
+										<li>
+											Blockers: {blockers}
+										</li>
+									</ul>
+								}
+								secondaryTextLines={4}
+							/>
 						)
 					: 'Connecting...'}
+				<List>
+					{Object.values(this.props.users).map((user, i) =>
+						<ListItem
+							primaryText={user.name}
+							key={i}
+							leftIcon={<ActionGrade color={pinkA200} />}
+							insetChildren={true}
+						/>
+					)}
+				</List>
 			</div>
 		);
 	}
@@ -41,7 +52,8 @@ class App extends Component {
 const mapStateToProps = (state, ownProps) => {
 	console.log('DATA UPDATE', state.updates);
 	return {
-		updates: state.updates
+		updates: state.updates,
+		users: state.users
 	};
 };
 
