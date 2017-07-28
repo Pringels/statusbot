@@ -20,6 +20,15 @@ const fireBaseInterface = {
 		return firebase.database().ref('updates').orderByChild('user').equalTo(user).limitToLast(1);
 	},
 
+	getUpdates() {
+		let date = new Date();
+		date.setHours(0);
+		date.setMinutes(0);
+		date = date.toLocaleString();
+		console.log('DATE', date);
+		return firebase.database().ref('updates').orderByChild('date').startAt(date);
+	},
+
 	getUser(id) {
 		return firebase.database().ref('users').child(id);
 	},

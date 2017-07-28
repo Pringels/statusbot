@@ -26,47 +26,57 @@ serverInterface.init(fireBaseInterface);
 
 var dailyRule = new schedule.RecurrenceRule();
 dailyRule.dayOfWeek = [1, new schedule.Range(2, 5)];
-dailyRule.hour = 17;
-dailyRule.minute = 00;
+dailyRule.hour = 16;
+dailyRule.minute = 30;
 
 var dailyJ = schedule.scheduleJob(dailyRule, function() {
-	let attachments = [
-		{
-			fallback: allUpdates[0].yesterday,
-			color: '#aaffaa',
-			pretext: `<@${allUpdates[0].user}>`,
-			title: 'Yesterday',
-			text: allUpdates[0].yesterday,
-			mrkdwn_in: ['text']
-		},
-		{
-			fallback: allUpdates[0].today,
-			color: '#36a64f',
-			title: 'Today',
-			text: allUpdates[0].today,
-			mrkdwn_in: ['text']
-		},
-		{
-			fallback: allUpdates[0].blockers,
-			color: '#f44f34',
-			title: 'Blockers',
-			text: allUpdates[0].blockers,
-			mrkdwn_in: ['text']
-		}
-	];
+	fireBaseInterface.getUpdates().once('value').then(snapshot => {
+		let updates = snapshot.val();
+		if (updates) {
+			let attachments = Object.values(updates)
+				.map(update => [
+					{
+						fallback: update.yesterday,
+						color: '#aaffaa',
+						pretext: `<@${update.user}>`,
+						title: 'Yesterday',
+						text: update.yesterday,
+						mrkdwn_in: ['text']
+					},
+					{
+						fallback: update.today,
+						color: '#36a64f',
+						title: 'Today',
+						text: update.today,
+						mrkdwn_in: ['text']
+					},
+					{
+						fallback: update.blockers,
+						color: '#f44f34',
+						title: 'Blockers',
+						text: update.blockers,
+						mrkdwn_in: ['text']
+					}
+				])
+				.reduce((a, b) => a.concat(b), []);
 
-	web.chat.postMessage('@peter', '', { as_user: true, attachments }, function(err, res) {
-		if (err) {
-			console.log('Error:', err);
-		} else {
-			console.log('Message sent: ', res);
+			web.chat.postMessage('eng-status', '', { as_user: true, attachments }, function(
+				err,
+				res
+			) {
+				if (err) {
+					console.log('Error:', err);
+				} else {
+					console.log('Message sent: ', res);
+				}
+			});
 		}
 	});
 });
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 	console.log('INCOMING MESSAGE', message);
-	if (message.channel !== statusChannel) {
+	if (message.channel !== statusChannel && message.user !== 'U6E132Y20') {
 		fireBaseInterface.getUser(message.user).once('value').then(snapshot => {
 			let user = snapshot.val();
 			let user_id = snapshot.key;
