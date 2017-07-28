@@ -38,7 +38,7 @@ ReactDOM.render(
 	</Provider>,
 	document.getElementById('root')
 );
-registerServiceWorker();
+//registerServiceWorker();
 
 /**
      * Function called when clicking the Login/Logout button.
