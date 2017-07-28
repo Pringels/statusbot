@@ -18,6 +18,7 @@ let current = null;
 let allUpdates = [];
 let allowed = false;
 let ims = {};
+let users = {};
 
 let scheduleRegistry = {};
 
@@ -79,6 +80,16 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 	if (message.channel !== statusChannel && message.user !== 'U6E132Y20') {
 		fireBaseInterface.getUser(message.user).once('value').then(snapshot => {
 			let user = snapshot.val();
+			if (!user) {
+				console.log('CREATING NEW USER', message.user, users[message.user]);
+				fireBaseInterface.createUser(message.user, users[message.user]);
+				rtm.sendMessage(
+					'Gotcha ' + users[message.user] + '. See you tomorrow at 8:30!',
+					ims[user_id]
+				);
+				return;
+			}
+
 			let user_id = snapshot.key;
 			console.log('USER', user);
 			var now = new Date();
@@ -157,16 +168,12 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 // The client will emit an RTM.AUTHENTICATED event on successful connection, with the `rtm.start` payload
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, rtmStartData => {
 	for (const c of rtmStartData.users) {
-		if (c.name === 'peter') {
-			//console.log('CHANNEL FOUND', c);
-			channel = c.id;
-		}
+		users[c.id] = c.name;
 	}
 
 	for (const d of rtmStartData.channels) {
 		if (d.name === 'eng-status') {
 			statusChannel = d.id;
-			console.log('CHANNEL FOUND', statusChannel);
 		}
 	}
 
