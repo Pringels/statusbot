@@ -85,7 +85,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 				fireBaseInterface.createUser(message.user, users[message.user]);
 				rtm.sendMessage(
 					'Gotcha ' + users[message.user] + '. See you tomorrow at 8:30!',
-					ims[user_id]
+					ims[message.user]
 				);
 				return;
 			}
