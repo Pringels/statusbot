@@ -2,48 +2,71 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import logo from './logo.svg';
 import './App.css';
-import RaisedButton from 'material-ui/RaisedButton';
-
-import { List, ListItem } from 'material-ui/List';
-import ActionGrade from 'material-ui/svg-icons/action/grade';
-import { pinkA200, transparent } from 'material-ui/styles/colors';
+import './normalize.css';
+import '@blueprintjs/core/dist/blueprint.css';
+import * as Blueprint from '@blueprintjs/core';
+import * as statusBotActions from './actions/statusBot';
 
 class App extends Component {
 	render() {
 		return (
 			<div className="App">
-				<RaisedButton id="quickstart-sign-in">Sign in</RaisedButton>
-				{this.props.updates.length > 0 && Object.keys(this.props.users).length > 0
-					? this.props.updates.map(({ today, yesterday, blockers, user }, i) =>
-							<ListItem
-								primaryText={this.props.users[user].name}
-								secondaryText={
-									<ul>
-										<li>
-											Yesterday: {yesterday}
-										</li>
-										<li>
-											Today: {today}
-										</li>
-										<li>
-											Blockers: {blockers}
-										</li>
-									</ul>
-								}
-								secondaryTextLines={4}
-							/>
-						)
-					: 'Connecting...'}
-				<List>
+				<div className="Header">
+					<button id="quickstart-sign-in">Sign in</button>
+				</div>
+				<ul className="users">
 					{Object.values(this.props.users).map((user, i) =>
-						<ListItem
-							primaryText={user.name}
+						<li
+							className={`user ${this.props.activeUsers.includes(user)
+								? 'is-active'
+								: ''}`}
+							onClick={
+								this.props.activeUsers.includes(user)
+									? () => this.props.removeActiveUser(user)
+									: () => this.props.setActiveUser(user)
+							}
 							key={i}
-							leftIcon={<ActionGrade color={pinkA200} />}
-							insetChildren={true}
-						/>
+						>
+							{user.name}
+						</li>
 					)}
-				</List>
+				</ul>
+				<div className="updates">
+					{this.props.updates.length > 0 && Object.keys(this.props.users).length > 0
+						? this.props.updates.map(
+								({ today, yesterday, blockers, user, date }, i) =>
+									this.props.activeUsers.includes(this.props.users[user]) ||
+									!this.props.activeUsers.length
+										? <div key={i} className="pt-card pt-elevation-1 update">
+												<h1>
+													{this.props.users[user].name}
+												</h1>
+												<h3>
+													{new Date(date).toDateString()}
+												</h3>
+												<div className="updateItem pt-card pt-elevation-1">
+													<h2>Yesterday</h2>
+													<p>
+														{yesterday}
+													</p>
+												</div>
+												<div className="updateItem pt-card pt-elevation-1">
+													<h2>Today</h2>
+													<p>
+														{today}
+													</p>
+												</div>
+												<div className="updateItem pt-card pt-elevation-1">
+													<h2>Blockers</h2>
+													<p>
+														{blockers}
+													</p>
+												</div>
+											</div>
+										: null
+							)
+						: 'Connecting...'}
+				</div>
 			</div>
 		);
 	}
@@ -53,8 +76,20 @@ const mapStateToProps = (state, ownProps) => {
 	console.log('DATA UPDATE', state.updates);
 	return {
 		updates: state.updates,
-		users: state.users
+		users: state.users,
+		activeUsers: state.activeUsers
 	};
 };
 
-export default connect(mapStateToProps)(App);
+const mapDispatchToProps = (dispatch, ownProps) => {
+	return {
+		setActiveUser: user => {
+			dispatch(statusBotActions.setActiveUser(user));
+		},
+		removeActiveUser: user => {
+			dispatch(statusBotActions.removeActiveUser(user));
+		}
+	};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

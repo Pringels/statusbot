@@ -11,3 +11,17 @@ export const getUsers = users => {
 		users
 	};
 };
+
+export const setActiveUser = user => {
+	return {
+		type: 'SET_ACTIVE_USER',
+		user
+	};
+};
+
+export const removeActiveUser = user => {
+	return {
+		type: 'REMOVE_ACTIVE_USER',
+		user
+	};
+};
