@@ -80,11 +80,13 @@
 
 .user {
 	padding: 20px;
+	cursor: pointer;
+	transition: .3s ease;
 	border-bottom: 1px solid #dddddd;
 }
 
 .user.is-active {
-	background-color: #b4d455;
+	background-color: #eeeeee;
 }
 
 .dateLine {
@@ -93,7 +95,7 @@
 	margin-bottom: 30px;
 	padding-bottom: 30px;
 	text-align: center;
-	color: #bcbcbc;
+	color: #444444;
 	margin-top: 20px;
 }
 
@@ -128,4 +130,20 @@
 	border: 0;
 	padding: 10px;
 	font-size: 18px;
+}
+
+.icon {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	border-radius: 5px;
+	margin-right: 10px;
+}
+
+.icon-posted {
+	background-color: #b4d455;
+}
+
+.icon-missing {
+	background-color: #d44455;
 }

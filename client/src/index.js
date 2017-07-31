@@ -87,6 +87,7 @@ function initApp() {
 			}
 			// The signed-in user info.
 			var user = result.user;
+			console.log('USER', user);
 			firebase.database().ref('users').on('value', dataSnapshot => {
 				store.dispatch(statusBotActions.getUsers(dataSnapshot.val()));
 			});

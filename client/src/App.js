@@ -33,6 +33,20 @@ class App extends Component {
 							}
 							key={i}
 						>
+							{this.props.updates
+								.filter(update => {
+									let date = new Date(update.date);
+									let now = new Date();
+									return (
+										date.getDate() === now.getDate() &&
+										date.getMonth() === now.getMonth() &&
+										now.getFullYear() === date.getFullYear()
+									);
+								})
+								.some(update => this.props.users[update.user].name === user.name)
+								? <span className="icon icon-posted" />
+								: <span className="icon icon-missing" />}
+
 							{user.name}
 						</li>
 					)}
