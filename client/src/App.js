@@ -61,16 +61,16 @@ class App extends Component {
 	}
 }
 
-const renderUpdates = (date, updates, users, activeUsers, filter) => {
+const renderUpdates = (date, updates, users, activeUsers, filter = '') => {
 	return updates.length > 0 && Object.keys(users).length > 0
 		? updates
 				.filter(update => date.getDate() === new Date(update.date).getDate())
 				.filter(
 					({ yesterday = '', today = '', blockers = '' }) =>
-						yesterday.includes(filter) ||
-						today.includes(filter) ||
-						blockers.includes(filter) ||
-						(filter === '' || !filter)
+						yesterday.toUpperCase().includes(filter.toUpperCase()) ||
+						today.toUpperCase().includes(filter.toUpperCase()) ||
+						blockers.toUpperCase().includes(filter.toUpperCase()) ||
+						filter === ''
 				)
 				.map(
 					({ today, yesterday, blockers, user, date }, i) =>

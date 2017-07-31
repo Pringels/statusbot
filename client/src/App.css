@@ -38,11 +38,13 @@
 }
 
 .update {
-	width: 50%;
+	width: 32%;
 	display: inline-block;
 	text-align: left;
 	vertical-align: top;
 	margin-bottom: 10px;
+	margin-left: 10px;
+	height: auto;
 }
 
 .update h1 {
@@ -87,9 +89,9 @@
 
 .dateLine {
 	font-size: 22px;
-	border-bottom: 1px solid #bcbcbc;
-	margin-bottom: 20px;
-	padding-bottom: 20px;
+	border-bottom: 1px solid #dcdcdc;
+	margin-bottom: 30px;
+	padding-bottom: 30px;
 	text-align: center;
 	color: #bcbcbc;
 	margin-top: 20px;
