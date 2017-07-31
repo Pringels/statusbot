@@ -1,5 +1,5 @@
 .App {
-	text-align: center;
+	display: block;
 }
 
 .App-logo {
@@ -27,15 +27,22 @@
 	}
 }
 
+.updatesContainer {
+	display: inline-block;
+	width: 80%;
+}
+
 .updates {
-	width: 500px;
-	float: left;
-	padding: 50px;
+	width: 100%;
+	padding: 20px;
 }
 
 .update {
-	width: 100%;
+	width: 50%;
+	display: inline-block;
 	text-align: left;
+	vertical-align: top;
+	margin-bottom: 10px;
 }
 
 .update h1 {
@@ -57,16 +64,16 @@
 }
 
 .updateItem {
-	font-size: 22px;
+	font-size: 18px;
 	margin-bottom: 20px;
 	color: #555555;
 }
 
 .users {
-	width: 200px;
-	float: left;
-	display: block;
+	width: 20%;
+	display: inline-block;
 	list-style: none;
+	vertical-align: top;
 }
 
 .user {
@@ -76,4 +83,14 @@
 
 .user.is-active {
 	background-color: #b4d455;
+}
+
+.dateLine {
+	font-size: 22px;
+	border-bottom: 1px solid #bcbcbc;
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+	text-align: center;
+	color: #bcbcbc;
+	margin-top: 20px;
 }

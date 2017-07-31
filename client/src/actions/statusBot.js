@@ -25,3 +25,10 @@ export const removeActiveUser = user => {
 		user
 	};
 };
+
+export const filterResults = value => {
+	return {
+		type: 'SET_FILTER',
+		value
+	};
+};
