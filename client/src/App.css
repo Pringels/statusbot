@@ -96,3 +96,36 @@
 	color: #bcbcbc;
 	margin-top: 20px;
 }
+
+.Header {
+	width: 100%;
+	background-color: #444444;
+	padding: 30px;
+	height: 110px;
+}
+
+.search {
+	float: left;
+}
+
+.search input {
+	background-color: #666666;
+	padding: 10px;
+	border: 0;
+	color: #eeeeee;
+	font-size: 22px;
+}
+
+.search label {
+	margin-right: 20px;
+	vertical-align: baseline;
+	color: #cccccc;
+}
+
+.login {
+	float: right;
+	background-color: #eeeeee;
+	border: 0;
+	padding: 10px;
+	font-size: 18px;
+}

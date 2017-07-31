@@ -12,8 +12,13 @@ class App extends Component {
 		return (
 			<div className="App">
 				<div className="Header">
-					<button id="quickstart-sign-in">Sign in</button>
-					<input type="text" onChange={this.props.filterResults} />
+					<button className="login" id="quickstart-sign-in">
+						Sign in
+					</button>
+					<div className="search">
+						<label>Search:</label>
+						<input type="text" onChange={this.props.filterResults} />
+					</div>
 				</div>
 				<ul className="users">
 					{Object.values(this.props.users).map((user, i) =>
