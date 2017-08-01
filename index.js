@@ -5,6 +5,8 @@ var CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS;
 var fireBaseInterface = require('./firebase.js');
 var serverInterface = require('./server.js');
 var schedule = require('node-schedule');
+var winston = require('winston');
+require('winston-loggly-bulk');
 
 var bot_token = process.env.SLACK_BOT_TOKEN;
 
@@ -19,6 +21,15 @@ let allUpdates = [];
 let allowed = false;
 let ims = {};
 let users = {};
+
+winston.add(winston.transports.Loggly, {
+	token: 'e8444aaa-338a-42bb-8ff6-d0162dafed0d',
+	subdomain: 'pringelman',
+	tags: ['Winston-NodeJS'],
+	json: true
+});
+
+winston.log('info', 'Restarting app');
 
 let scheduleRegistry = {};
 
@@ -81,6 +92,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 			let user = snapshot.val();
 			if (!user) {
 				console.log('CREATING NEW USER', message.user, users[message.user]);
+				winston.log('info', 'Creating new user: ' + message.user);
 				fireBaseInterface.createUser(message.user, users[message.user]);
 				rtm.sendMessage(
 					'Gotcha ' + users[message.user] + '. See you tomorrow at 8:30!',
@@ -100,6 +112,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 					.getUpdate(message.user)
 					.once('value')
 					.catch(err => {
+						winston.log('error', err);
 						console.log(
 							'PROMISE ERROR: fireBaseInterface.getUpdate(message.user) - ',
 							err
@@ -119,7 +132,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 							date.getMonth() === now.getMonth() &&
 							date.getFullYear() === now.getFullYear()
 						) {
-							console.log('SAME!');
 							if (!update.today) {
 								fireBaseInterface.editUpdate(updateRef, {
 									today: message.text
