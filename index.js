@@ -76,7 +76,6 @@ var dailyJ = schedule.scheduleJob(dailyRule, function() {
 });
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-	console.log('INCOMING MESSAGE', message);
 	if (message.channel !== statusChannel && message.user !== 'U6E132Y20') {
 		fireBaseInterface.getUser(message.user).once('value').then(snapshot => {
 			let user = snapshot.val();
@@ -97,45 +96,56 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 			let minutes = user.updateTime.split(':')[1];
 			if (now.getHours() >= hours && now.getMinutes() >= minutes) {
 				console.log('TIME IS GOOD');
-				fireBaseInterface.getUpdate(message.user).once('value').then(snapshot => {
-					let updates = snapshot.val();
-					update = updates ? updates[Object.keys(updates)[0]] : null;
-					let updateRef = updates ? snapshot.child(Object.keys(updates)[0]).ref : null;
-					var date = update ? new Date(update.date) : new Date();
+				fireBaseInterface
+					.getUpdate(message.user)
+					.once('value')
+					.catch(err => {
+						console.log(
+							'PROMISE ERROR: fireBaseInterface.getUpdate(message.user) - ',
+							err
+						);
+					})
+					.then(snapshot => {
+						let updates = snapshot.val();
+						update = updates ? updates[Object.keys(updates)[0]] : null;
+						let updateRef = updates
+							? snapshot.child(Object.keys(updates)[0]).ref
+							: null;
+						var date = update ? new Date(update.date) : new Date();
 
-					if (
-						update &&
-						date.getDate() === now.getDate() &&
-						date.getMonth() === now.getMonth() &&
-						date.getFullYear() === now.getFullYear()
-					) {
-						console.log('SAME!');
-						if (!update.today) {
-							fireBaseInterface.editUpdate(updateRef, {
-								today: message.text
-							});
-							rtm.sendMessage('Anything standing in your way?', ims[user_id]);
-						} else if (!update.blockers) {
-							fireBaseInterface.editUpdate(updateRef, {
-								blockers: message.text
-							});
-							rtm.sendMessage('Thanks! Chat again tomorrow :)', ims[user_id]);
+						if (
+							update &&
+							date.getDate() === now.getDate() &&
+							date.getMonth() === now.getMonth() &&
+							date.getFullYear() === now.getFullYear()
+						) {
+							console.log('SAME!');
+							if (!update.today) {
+								fireBaseInterface.editUpdate(updateRef, {
+									today: message.text
+								});
+								rtm.sendMessage('Anything standing in your way?', ims[user_id]);
+							} else if (!update.blockers) {
+								fireBaseInterface.editUpdate(updateRef, {
+									blockers: message.text
+								});
+								rtm.sendMessage('Thanks! Chat again tomorrow :)', ims[user_id]);
+							} else {
+								rtm.sendMessage(
+									'Why are you still here? I already have your status for today. Now get back to work before I report you.',
+									ims[user_id]
+								);
+							}
 						} else {
-							rtm.sendMessage(
-								'Why are you still here? I already have your status for today. Now get back to work before I report you.',
-								ims[user_id]
-							);
+							let d = new Date();
+							update = fireBaseInterface.postUpdate({
+								yesterday: message.text,
+								user: message.user,
+								date: d.toLocaleString()
+							});
+							rtm.sendMessage('And today?', ims[user_id]);
 						}
-					} else {
-						let d = new Date();
-						update = fireBaseInterface.postUpdate({
-							yesterday: message.text,
-							user: message.user,
-							date: d.toLocaleString()
-						});
-						rtm.sendMessage('And today?', ims[user_id]);
-					}
-				});
+					});
 			} else {
 				rtm.sendMessage(
 					"I'm not ready yet! If you want to do status updates earlier then update your time with `/statusbot time hh:mm`",
