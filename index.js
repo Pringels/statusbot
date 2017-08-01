@@ -7,6 +7,13 @@ var serverInterface = require('./server.js');
 var schedule = require('node-schedule');
 var winston = require('winston');
 require('winston-loggly-bulk');
+var Throttle = require('./utils/throttle');
+
+const throttle = Object.create(Throttle);
+throttle.init({
+	delay: 1100,
+	retries: 10
+});
 
 var bot_token = process.env.SLACK_BOT_TOKEN;
 
@@ -94,9 +101,11 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 				console.log('CREATING NEW USER', message.user, users[message.user]);
 				winston.log('info', 'Creating new user: ' + message.user);
 				fireBaseInterface.createUser(message.user, users[message.user]);
-				rtm.sendMessage(
-					'Gotcha ' + users[message.user] + '. See you tomorrow at 8:30!',
-					ims[message.user]
+				throttle.call(
+					rtm.sendMessage(
+						'Gotcha ' + users[message.user] + '. See you tomorrow at 8:30!',
+						ims[message.user]
+					)
 				);
 				return;
 			}
@@ -136,16 +145,22 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 								fireBaseInterface.editUpdate(updateRef, {
 									today: message.text
 								});
-								rtm.sendMessage('Anything standing in your way?', ims[user_id]);
+								throttle.call(
+									rtm.sendMessage('Anything standing in your way?', ims[user_id])
+								);
 							} else if (!update.blockers) {
 								fireBaseInterface.editUpdate(updateRef, {
 									blockers: message.text
 								});
-								rtm.sendMessage('Thanks! Chat again tomorrow :)', ims[user_id]);
+								throttle.call(
+									rtm.sendMessage('Thanks! Chat again tomorrow :)', ims[user_id])
+								);
 							} else {
-								rtm.sendMessage(
-									'Why are you still here? I already have your status for today. Now get back to work before I report you.',
-									ims[user_id]
+								throttle.call(
+									rtm.sendMessage(
+										'Why are you still here? I already have your status for today. Now get back to work before I report you.',
+										ims[user_id]
+									)
 								);
 							}
 						} else {
@@ -155,13 +170,15 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 								user: message.user,
 								date: d.toLocaleString()
 							});
-							rtm.sendMessage('And today?', ims[user_id]);
+							throttle.call(rtm.sendMessage('And today?', ims[user_id]));
 						}
 					});
 			} else {
-				rtm.sendMessage(
-					"I'm not ready yet! If you want to do status updates earlier then update your time with `/statusbot time hh:mm`",
-					ims[user_id]
+				throttle.call(
+					rtm.sendMessage(
+						"I'm not ready yet! If you want to do status updates earlier then update your time with `/statusbot time hh:mm`",
+						ims[user_id]
+					)
 				);
 			}
 		});
@@ -242,17 +259,19 @@ function updateUser(user, key) {
 	var j = schedule.scheduleJob(rule, function() {
 		update = null;
 		current = 'yesterday';
-		web.chat.postMessage(
-			'@' + user.name,
-			'What did you work on yesterday?',
-			{ as_user: true },
-			function(err, res) {
-				if (err) {
-					console.log('Error:', err);
-				} else {
-					console.log('Message sent: ', res);
+		throttle.call(
+			web.chat.postMessage(
+				'@' + user.name,
+				'What did you work on yesterday?',
+				{ as_user: true },
+				function(err, res) {
+					if (err) {
+						console.log('Error:', err);
+					} else {
+						console.log('Message sent: ', res);
+					}
 				}
-			}
+			)
 		);
 	});
 
