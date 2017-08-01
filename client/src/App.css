@@ -132,6 +132,21 @@
 	font-size: 18px;
 }
 
+.loginLanding {
+	background-color: #eeeeee;
+	border: 0;
+	padding: 20px;
+	font-size: 22px;
+	width: 100%;
+	margin-top: 60px;
+	cursor: pointer;
+	transition: .3s ease;
+}
+
+.loginLanding:hover {
+	background-color: #ffffff;
+}
+
 .icon {
 	display: inline-block;
 	width: 10px;
@@ -146,4 +161,33 @@
 
 .icon-missing {
 	background-color: #d44455;
+}
+
+.weekend {
+	width: 100%;
+	display: block;
+	background-color: #eeeeee;
+	margin: 10px 0;
+	text-align: center;
+	font-size: 22px;
+	padding: 20px 0;
+	color: #aaaaaa;
+}
+
+.loader {
+	width: 100%;
+	height: 100vh;
+	background-color: #b4d455;
+}
+
+.loaderCenter {
+	margin: 0 auto;
+	width: 300px;
+	padding-top: 38vh;
+	text-align: center;
+}
+
+.loaderCenter h1 {
+	font-size: 23px;
+	color: #eeeeee;
 }

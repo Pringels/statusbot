@@ -45,23 +45,14 @@ ReactDOM.render(
      */
 // [START buttoncallback]
 function toggleSignIn() {
-	if (!firebase.auth().currentUser) {
-		// [START createprovider]
-		var provider = new firebase.auth.GoogleAuthProvider();
-		// [END createprovider]
-		// [START addscopes]
-		provider.addScope('https://www.googleapis.com/auth/plus.login');
-		// [END addscopes]
-		// [START signin]
-		firebase.auth().signInWithRedirect(provider);
-		// [END signin]
-	} else {
-		// [START signout]
-		firebase.auth().signOut();
-		// [END signout]
-	}
-	// [START_EXCLUDE]
-	// [END_EXCLUDE]
+	var provider = new firebase.auth.GoogleAuthProvider();
+	// [END createprovider]
+	// [START addscopes]
+	provider.addScope('https://www.googleapis.com/auth/plus.login');
+	// [END addscopes]
+	// [START signin]
+	firebase.auth().signInWithRedirect(provider);
+	// [END signin]
 }
 // [END buttoncallback]
 /**
@@ -87,13 +78,25 @@ function initApp() {
 			}
 			// The signed-in user info.
 			var user = result.user;
-			console.log('USER', user);
-			firebase.database().ref('users').on('value', dataSnapshot => {
-				store.dispatch(statusBotActions.getUsers(dataSnapshot.val()));
-			});
-			firebase.database().ref('updates').on('value', dataSnapshot => {
-				store.dispatch(statusBotActions.getUpdates(dataSnapshot.val()));
-			});
+
+			if (window.localStorage.getItem('statusbot_token')) {
+				user = window.localStorage.getItem('statusbot_token');
+			}
+
+			if (user) {
+				store.dispatch(statusBotActions.setAuth(user));
+				user != window.localStorage.getItem('statusbot_token') &&
+					window.localStorage.setItem('statusbot_token', user.o);
+
+				firebase.database().ref('users').on('value', dataSnapshot => {
+					store.dispatch(statusBotActions.getUsers(dataSnapshot.val()));
+				});
+				firebase.database().ref('updates').on('value', dataSnapshot => {
+					store.dispatch(statusBotActions.getUpdates(dataSnapshot.val()));
+				});
+			} else {
+				store.dispatch(statusBotActions.setAuth(null));
+			}
 		})
 		.catch(function(error) {
 			// Handle Errors here.
@@ -137,7 +140,9 @@ function initApp() {
 		// [END_EXCLUDE]
 	});
 	// [END authstatelistener]
-	document.getElementById('quickstart-sign-in').addEventListener('click', toggleSignIn, false);
+	window.addEventListener('click', e => {
+		e.target.id === 'quickstart-sign-in' && toggleSignIn();
+	});
 }
 window.onload = function() {
 	initApp();

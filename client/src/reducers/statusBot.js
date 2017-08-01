@@ -2,7 +2,8 @@ const nameInitialState = {
 	updates: [],
 	users: {},
 	activeUsers: [],
-	fiter: ''
+	fiter: '',
+	auth: 'loading'
 };
 const statusBot = (state = nameInitialState, action) => {
 	switch (action.type) {
@@ -17,6 +18,10 @@ const statusBot = (state = nameInitialState, action) => {
 		case 'SET_ACTIVE_USER':
 			return Object.assign({}, state, {
 				activeUsers: [...state.activeUsers, action.user]
+			});
+		case 'SET_AUTH':
+			return Object.assign({}, state, {
+				auth: action.user
 			});
 		case 'REMOVE_ACTIVE_USER':
 			return Object.assign({}, state, {

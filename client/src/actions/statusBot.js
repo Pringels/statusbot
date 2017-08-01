@@ -32,3 +32,10 @@ export const filterResults = value => {
 		value
 	};
 };
+
+export const setAuth = user => {
+	return {
+		type: 'SET_AUTH',
+		user
+	};
+};
