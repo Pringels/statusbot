@@ -260,7 +260,7 @@ function updateUser(user, key) {
     var j = schedule.scheduleJob(rule, function() {
         update = null;
         current = 'yesterday';
-        throttle.call(
+        throttle.call(() =>
             web.chat.postMessage(
                 '@' + user.name,
                 'What did you work on yesterday?',
