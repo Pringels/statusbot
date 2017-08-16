@@ -7,7 +7,7 @@ const Throttle = {
         this.initialRetries = retries;
         this.retries = retries;
         this.delay = delay;
-        this.callInterva;
+        this.callInterval;
     },
     call(fn) {
         this.queue.push(fn);
