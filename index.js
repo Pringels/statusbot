@@ -169,7 +169,8 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
                             update = fireBaseInterface.postUpdate({
                                 yesterday: message.text,
                                 user: message.user,
-                                date: d.toLocaleString()
+                                date: d.toLocaleString(),
+                                channel: user.channel
                             });
                             throttle.call(() => rtm.sendMessage('And today?', ims[user_id]));
                         }
@@ -184,25 +185,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
             }
         });
     }
-    // if (message.channel === im && message.user === channel && current) {
-    // 	if (!update) {
-    // 		let d = new Date();
-    // 		update = fireBaseInterface.postUpdate({
-    // 			yesterday: message.text,
-    // 			user: message.user,
-    // 			date: d.toLocaleString()
-    // 		});
-    // 		rtm.sendMessage('What will you work on today?', im);
-    // 	} else if (current === 'yesterday') {
-    // 		current = 'today';
-    // 	} else if (current === 'today') {
-    // 		fireBaseInterface.editUpdate(update, {
-    // 			blockers: message.text
-    // 		});
-    // 		rtm.sendMessage('Thanks! Chat again tomorrow :)', im);
-    // 		current = null;
-    // 	}
-    // }
 });
 
 // The client will emit an RTM.AUTHENTICATED event on successful connection, with the `rtm.start` payload
@@ -280,12 +262,5 @@ function updateUser(user, key) {
 }
 
 var web = new WebClient(bot_token);
-// web.chat.postMessage('@peter', '', { as_user: true, attachments: attachments }, function(err, res) {
-// 	if (err) {
-// 		console.log('Error:', err);
-// 	} else {
-// 		console.log('Message sent: ', res);
-// 	}
-// });
 
 let connect = rtm.connect('https://slack.com/api/rtm.connect');
