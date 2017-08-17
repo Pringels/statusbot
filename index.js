@@ -28,6 +28,7 @@ let allUpdates = [];
 let allowed = false;
 let ims = {};
 let users = {};
+let userChannels = [];
 
 winston.add(winston.transports.Loggly, {
     token: 'e8444aaa-338a-42bb-8ff6-d0162dafed0d',
@@ -94,7 +95,7 @@ var dailyJ = schedule.scheduleJob(dailyRule, function() {
 });
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-    if (message.channel !== statusChannel && message.user !== 'U6E132Y20') {
+    if (userChannels.includes(message.user) && message.channel[0] !== 'C') {
         fireBaseInterface.getUser(message.user).once('value').then(snapshot => {
             let user = snapshot.val();
             if (!user) {
@@ -109,7 +110,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
                 );
                 return;
             }
-
             let user_id = snapshot.key;
             console.log('USER', user);
             var now = new Date();
@@ -135,7 +135,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
                             ? snapshot.child(Object.keys(updates)[0]).ref
                             : null;
                         var date = update ? new Date(update.date) : new Date();
-
                         if (
                             update &&
                             date.getDate() === now.getDate() &&
@@ -236,6 +235,7 @@ function updateUser(user, key) {
     rule.dayOfWeek = [1, new schedule.Range(2, 5)];
     rule.hour = user.updateTime.split(':')[0];
     rule.minute = user.updateTime.split(':')[1];
+    userChannels.push(key);
 
     scheduleRegistry[key] && scheduleRegistry[key].cancel();
     console.log('ADDING NEW SCHEDULE...', user.updateTime);

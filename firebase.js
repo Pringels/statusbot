@@ -41,10 +41,11 @@ const fireBaseInterface = {
         update.update(data);
     },
 
-    createUser(id, name) {
+    createUser(id, name, channel) {
         return firebase.database().ref('users').child(id).set({
             name,
-            updateTime: '8:30'
+            updateTime: '8:30',
+            channel
         });
     },
 
