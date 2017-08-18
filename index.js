@@ -49,47 +49,48 @@ dailyRule.dayOfWeek = [1, new schedule.Range(2, 5)];
 dailyRule.hour = 16;
 dailyRule.minute = 30;
 
+var postAttacthments = function(updates) {
+    Object.values(updates).map(update => {
+        let attachment = {
+            as_user: true,
+            attachments: [
+                {
+                    fallback: update.yesterday,
+                    color: '#aaffaa',
+                    pretext: `<@${update.user}>`,
+                    title: 'Yesterday',
+                    text: update.yesterday,
+                    mrkdwn_in: ['text']
+                },
+                {
+                    fallback: update.today,
+                    color: '#36a64f',
+                    title: 'Today',
+                    text: update.today,
+                    mrkdwn_in: ['text']
+                },
+                {
+                    fallback: update.blockers,
+                    color: '#f44f34',
+                    title: 'Blockers',
+                    text: update.blockers,
+                    mrkdwn_in: ['text']
+                }
+            ]
+        };
+        throttle.call(() =>
+            web.chat.postMessage(update.channel, '', attachment, (err, res) => {
+                err ? console.log('Error:', err) : console.log('Message sent: ', res);
+            })
+        );
+    });
+};
+
 var dailyJ = schedule.scheduleJob(dailyRule, function() {
     fireBaseInterface.getUpdates().once('value').then(snapshot => {
         let updates = snapshot.val();
         if (updates) {
-            let attachments = Object.values(updates)
-                .map(update => [
-                    {
-                        fallback: update.yesterday,
-                        color: '#aaffaa',
-                        pretext: `<@${update.user}>`,
-                        title: 'Yesterday',
-                        text: update.yesterday,
-                        mrkdwn_in: ['text']
-                    },
-                    {
-                        fallback: update.today,
-                        color: '#36a64f',
-                        title: 'Today',
-                        text: update.today,
-                        mrkdwn_in: ['text']
-                    },
-                    {
-                        fallback: update.blockers,
-                        color: '#f44f34',
-                        title: 'Blockers',
-                        text: update.blockers,
-                        mrkdwn_in: ['text']
-                    }
-                ])
-                .reduce((a, b) => a.concat(b), []);
-
-            web.chat.postMessage('eng-status', '', { as_user: true, attachments }, function(
-                err,
-                res
-            ) {
-                if (err) {
-                    console.log('Error:', err);
-                } else {
-                    console.log('Message sent: ', res);
-                }
-            });
+            postAttacthments(updates);
         }
     });
 });
