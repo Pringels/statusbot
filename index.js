@@ -86,104 +86,118 @@ var postAttacthments = function(updates) {
     });
 };
 
-var dailyJ = schedule.scheduleJob(dailyRule, function() {
-    fireBaseInterface.getUpdates().once('value').then(snapshot => {
-        let updates = snapshot.val();
-        if (updates) {
-            postAttacthments(updates);
-        }
-    });
-});
+// var dailyJ = schedule.scheduleJob(dailyRule, function() {
+//     fireBaseInterface
+//         .getUpdates()
+//         .once('value')
+//         .then(snapshot => {
+//             let updates = snapshot.val();
+//             if (updates) {
+//                 postAttacthments(updates);
+//             }
+//         });
+// });
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     if (userChannels.includes(message.user) && message.channel[0] !== 'C') {
-        fireBaseInterface.getUser(message.user).once('value').then(snapshot => {
-            let user = snapshot.val();
-            if (!user) {
-                console.log('CREATING NEW USER', message.user, users[message.user]);
-                winston.log('info', 'Creating new user: ' + message.user);
-                fireBaseInterface.createUser(message.user, users[message.user]);
-                throttle.call(() =>
-                    rtm.sendMessage(
-                        'Gotcha ' + users[message.user] + '. See you tomorrow at 8:30!',
-                        ims[message.user]
-                    )
-                );
-                return;
-            }
-            let user_id = snapshot.key;
-            console.log('USER', user);
-            var now = new Date();
-            let hours = user.updateTime.split(':')[0];
-            let minutes = user.updateTime.split(':')[1];
-            console.log('HOURS', hours, minutes);
-            if (now.getHours() >= hours) {
-                console.log('TIME IS GOOD');
-                fireBaseInterface
-                    .getUpdate(message.user)
-                    .once('value')
-                    .catch(err => {
-                        winston.log('error', err);
-                        console.log(
-                            'PROMISE ERROR: fireBaseInterface.getUpdate(message.user) - ',
-                            err
-                        );
-                    })
-                    .then(snapshot => {
-                        let updates = snapshot.val();
-                        update = updates ? updates[Object.keys(updates)[0]] : null;
-                        let updateRef = updates
-                            ? snapshot.child(Object.keys(updates)[0]).ref
-                            : null;
-                        var date = update ? new Date(update.date) : new Date();
-                        if (
-                            update &&
-                            date.getDate() === now.getDate() &&
-                            date.getMonth() === now.getMonth() &&
-                            date.getFullYear() === now.getFullYear()
-                        ) {
-                            if (!update.today) {
-                                fireBaseInterface.editUpdate(updateRef, {
-                                    today: message.text
-                                });
-                                throttle.call(() =>
-                                    rtm.sendMessage('Anything standing in your way?', ims[user_id])
-                                );
-                            } else if (!update.blockers) {
-                                fireBaseInterface.editUpdate(updateRef, {
-                                    blockers: message.text
-                                });
-                                throttle.call(() =>
-                                    rtm.sendMessage('Thanks! Chat again tomorrow :)', ims[user_id])
-                                );
+        fireBaseInterface
+            .getUser(message.user)
+            .once('value')
+            .then(snapshot => {
+                let user = snapshot.val();
+                if (!user) {
+                    console.log('CREATING NEW USER', message.user, users[message.user]);
+                    winston.log('info', 'Creating new user: ' + message.user);
+                    fireBaseInterface.createUser(message.user, users[message.user]);
+                    throttle.call(() =>
+                        rtm.sendMessage(
+                            'Gotcha ' + users[message.user] + '. See you tomorrow at 8:30!',
+                            ims[message.user]
+                        )
+                    );
+                    return;
+                }
+                let user_id = snapshot.key;
+                console.log('USER', user);
+                var now = new Date();
+                let hours = user.updateTime.split(':')[0];
+                let minutes = user.updateTime.split(':')[1];
+                console.log('HOURS', hours, minutes);
+                if (now.getHours() >= hours) {
+                    console.log('TIME IS GOOD');
+                    fireBaseInterface
+                        .getUpdate(message.user)
+                        .once('value')
+                        .catch(err => {
+                            winston.log('error', err);
+                            console.log(
+                                'PROMISE ERROR: fireBaseInterface.getUpdate(message.user) - ',
+                                err
+                            );
+                        })
+                        .then(snapshot => {
+                            let updates = snapshot.val();
+                            update = updates ? updates[Object.keys(updates)[0]] : null;
+                            let updateRef = updates
+                                ? snapshot.child(Object.keys(updates)[0]).ref
+                                : null;
+                            var date = update ? new Date(update.date) : new Date();
+                            if (
+                                update &&
+                                date.getDate() === now.getDate() &&
+                                date.getMonth() === now.getMonth() &&
+                                date.getFullYear() === now.getFullYear()
+                            ) {
+                                if (!update.today) {
+                                    fireBaseInterface.editUpdate(updateRef, {
+                                        today: message.text
+                                    });
+                                    throttle.call(() =>
+                                        rtm.sendMessage(
+                                            'Anything standing in your way?',
+                                            ims[user_id]
+                                        )
+                                    );
+                                } else if (!update.blockers) {
+                                    fireBaseInterface.editUpdate(updateRef, {
+                                        blockers: message.text
+                                    });
+                                    throttle.call(() =>
+                                        rtm.sendMessage(
+                                            'Thanks! Chat again tomorrow :)',
+                                            ims[user_id]
+                                        )
+                                    );
+                                    update.blockers = message.text;
+                                    postAttacthments([update]);
+                                } else {
+                                    throttle.call(() =>
+                                        rtm.sendMessage(
+                                            'Why are you still here? I already have your status for today. Now get back to work before I report you.',
+                                            ims[user_id]
+                                        )
+                                    );
+                                }
                             } else {
-                                throttle.call(() =>
-                                    rtm.sendMessage(
-                                        'Why are you still here? I already have your status for today. Now get back to work before I report you.',
-                                        ims[user_id]
-                                    )
-                                );
+                                let d = new Date();
+                                update = fireBaseInterface.postUpdate({
+                                    yesterday: message.text,
+                                    user: message.user,
+                                    date: d.toLocaleString(),
+                                    channel: user.channel
+                                });
+                                throttle.call(() => rtm.sendMessage('And today?', ims[user_id]));
                             }
-                        } else {
-                            let d = new Date();
-                            update = fireBaseInterface.postUpdate({
-                                yesterday: message.text,
-                                user: message.user,
-                                date: d.toLocaleString(),
-                                channel: user.channel
-                            });
-                            throttle.call(() => rtm.sendMessage('And today?', ims[user_id]));
-                        }
-                    });
-            } else {
-                throttle.call(() =>
-                    rtm.sendMessage(
-                        "I'm not ready yet! If you want to do status updates earlier then update your time with `/statusbot time hh:mm`",
-                        ims[user_id]
-                    )
-                );
-            }
-        });
+                        });
+                } else {
+                    throttle.call(() =>
+                        rtm.sendMessage(
+                            "I'm not ready yet! If you want to do status updates earlier then update your time with `/statusbot time hh:mm`",
+                            ims[user_id]
+                        )
+                    );
+                }
+            });
     }
 });
 
