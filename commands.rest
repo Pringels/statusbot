@@ -1,0 +1,13 @@
+### REGISTER
+
+POST http://localhost:8080/ HTTP/1.1
+content-type: application/json
+
+token=dummy&text=register%20statusbot1&user_id=U072FAYBY&user_name=peter
+
+### CHANGE TIME
+
+POST http://localhost:8080/ HTTP/1.1
+content-type: application/json
+
+token=dummy&text=time%2022:04&user_id=U072FAYBY&user_name=peter
