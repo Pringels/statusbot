@@ -1,22 +1,22 @@
 {
-	"name": "status-bot",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
-	"dependencies": {
-		"@slack/client": "^3.10.0",
-		"firebase": "^4.1.5",
-		"kue": "^0.11.6",
-		"node-schedule": "^1.2.3",
-		"react-redux": "^5.0.5",
-		"redux": "^3.7.2",
-		"winston-loggly-bulk": "^2.0.0"
-	},
-	"devDependencies": {},
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "node server.js"
-	},
-	"author": "",
-	"license": "ISC"
+    "name": "status-bot",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "dependencies": {
+        "@slack/client": "^3.10.0",
+        "firebase": "^4.1.5",
+        "kue": "^0.11.6",
+        "node-schedule": "^1.2.3",
+        "react-redux": "^5.0.5",
+        "redux": "^3.7.2",
+        "winston-loggly-bulk": "^2.0.0"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node index.js"
+    },
+    "author": "",
+    "license": "ISC"
 }
