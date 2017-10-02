@@ -20,7 +20,7 @@ You will then need to set the following environment variables:
 `FIREBASE_PROJECT_ID`  
 `FIREBASE_SENDER_ID`  
 
-Fursth reading:
+Further reading:  
 https://api.slack.com/tokens  
 https://firebase.google.com/docs/web/setup  
 
