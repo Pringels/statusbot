@@ -13,16 +13,16 @@ A daily status update bot for Slack.
 First ensure you have created a firebase app and slack bot.
 You will then need to set the following environment variables:
 
-`SLACK_BOT_TOKEN`
-`SLACK_COMMAND_TOKEN`
+`SLACK_BOT_TOKEN`  
+`SLACK_COMMAND_TOKEN`  
 
-`FIREBASE_TOKEN`
-`FIREBASE_PROJECT_ID`
-`FIREBASE_SENDER_ID`
+`FIREBASE_TOKEN`  
+`FIREBASE_PROJECT_ID`  
+`FIREBASE_SENDER_ID`  
 
 Fursth reading:
-https://api.slack.com/tokens
-https://firebase.google.com/docs/web/setup
+https://api.slack.com/tokens  
+https://firebase.google.com/docs/web/setup  
 
 ## Starting the server
 
