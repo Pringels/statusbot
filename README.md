@@ -10,8 +10,8 @@ A daily status update bot for Slack.
 
 ## Installation
 
-First ensure you have created a firebase app and slack bot.
-You will then need to set the following environment variables:
+First ensure you have created a firebase app and slack bot.  
+You will then need to set the following environment variables:  
 
 `SLACK_BOT_TOKEN`  
 `SLACK_COMMAND_TOKEN`  
@@ -26,12 +26,12 @@ https://firebase.google.com/docs/web/setup
 
 ## Starting the server
 
-Simply execute `npm run start` or `yarn start` to run the server for local development.
+Simply execute `npm run start` or `yarn start` to run the server for local development.  
 For production environments it is recommended that you use a process manager like `pm2` instead.
 
 ## Starting the client application
 
-The client application uses `create-react-app`. 
-To run it locally execute `npm run start` or `yarn start`.
+The client application uses `create-react-app`.  
+To run it locally execute `npm run start` or `yarn start`.  
 For production environments it is recommended that you serve the compiled bundles directly through a web server like `nginx`.
 
