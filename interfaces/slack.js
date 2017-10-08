@@ -147,7 +147,7 @@ const slackInterface = {
             { as_user: true },
             (err, res) => {
                 if (err) {
-                    console.log('Error:', err);
+                    console.log(`FAILED TO SEND INITIAL USER MESSAGE FOR ${name}`, err);
                 } else {
                     console.log('Message sent: ', res);
                     done();
@@ -162,7 +162,12 @@ const slackInterface = {
                 '',
                 generateAttachment(update),
                 (err, res) => {
-                    err ? console.log('Error:', err) : console.log('Message sent: ', res);
+                    err
+                        ? console.log(
+                              `FAILED TO SEND CHANNEL UPDATE TO ${update.channel} FROM ${update.user}: `,
+                              err
+                          )
+                        : console.log('Message sent: ', res);
                     update.editStatus('ts', res.ts);
                     done();
                 }
@@ -170,16 +175,23 @@ const slackInterface = {
         });
     },
     editChannelUpdate(update, done) {
-        this.webClient.chat.update(
-            update.ts,
-            this.channelMap[update.channel],
-            '',
-            generateAttachment(update),
-            (err, res) => {
-                err ? console.log('Error:', err) : console.log('Message sent: ', res);
-                done();
-            }
-        );
+        try {
+            this.webClient.chat.update(
+                update.ts,
+                this.channelMap[update.channel],
+                '',
+                generateAttachment(update),
+                (err, res) => {
+                    err
+                        ? console.log('FAILED TO EDIT CHANNEL UPDATE:', err)
+                        : console.log('Message sent: ', res);
+                    done();
+                }
+            );
+        } catch (error) {
+            console.error('FAILED TO EDIT CHANNEL UPDATE: ', error);
+            done();
+        }
     },
     sendCommandResponse({ text, user }, done) {
         rtm.sendMessage(text, user);
