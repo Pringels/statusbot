@@ -82,13 +82,16 @@ const updateFactory = {
         );
     },
     createNew(message, user) {
+        console.log('Creating new update for ', message.user, user.channel);
         let d = new Date();
-        fireBaseInterface.postUpdate({
-            yesterday: message.text,
-            user: message.user,
-            date: d.toLocaleString(),
-            channel: user.channel
-        });
+        fireBaseInterface
+            .postUpdate({
+                yesterday: message.text,
+                user: message.user,
+                date: d.toLocaleString(),
+                channel: user.channel
+            })
+            .catch(err => console.error('Error while creating new update: ', err));
     }
 };
 
