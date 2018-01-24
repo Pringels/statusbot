@@ -32,7 +32,7 @@ function commandRouter({ user_id, user_name, text }, response) {
             let channel = text.split(' ')[1];
             if (!channel) {
                 response.end(
-                    'You forgot to send me the channel name you would like to register for. (EG `general`)'
+                    'You forgot to send me the channel name you would like to add. (EG `general`)'
                 );
                 break;
             }
@@ -63,7 +63,7 @@ function commandRouter({ user_id, user_name, text }, response) {
             let newChannel = text.split(' ')[1];
             if (!newChannel) {
                 response.end(
-                    'You forgot to send me the channel name you would like to register for. (EG `general`)'
+                    'You forgot to send me the channel name you would like to remove. (EG `general`)'
                 );
                 break;
             }
