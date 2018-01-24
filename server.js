@@ -101,7 +101,11 @@ function commandRouter({ user_id, user_name, text }, response) {
                     response.end(err);
                 })
                 .then(() => {
-                    response.end("Don't let the door hit you on your way out.");
+                    response.end(
+                        'Removing you from #' +
+                            deleteChannel +
+                            ". Don't let the door hit you on your way out."
+                    );
                 });
             break;
         case 'list':
