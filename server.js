@@ -79,7 +79,7 @@ function commandRouter({ user_id, user_name, text }, response) {
                     response.end(
                         'Awesome - I will now share your updates in #' +
                             newChannel +
-                            ' too'
+                            " too. DON'T FORGET TO INVITE ME TO THE CHANNEL! (Yes I'm shouting. Get over it)"
                     );
                 });
             break;
