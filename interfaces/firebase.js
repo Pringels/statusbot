@@ -72,7 +72,7 @@ const fireBaseInterface = {
             .set({
                 name,
                 updateTime: '8:30',
-                channel
+                channel: [channel]
             });
     },
 
@@ -84,6 +84,87 @@ const fireBaseInterface = {
             .update({
                 updateTime: time
             });
+    },
+
+    getUserChannels(id) {
+        return new Promise((resolve, reject) => {
+            let user = firebase
+                .database()
+                .ref('users')
+                .child(id)
+                .once('value')
+                .then(user => {
+                    let currentChannels = user.val().channel;
+                    resolve(currentChannels);
+                });
+        });
+    },
+
+    addChannel(id, channel) {
+        return new Promise((resolve, reject) => {
+            let user = firebase
+                .database()
+                .ref('users')
+                .child(id)
+                .once('value')
+                .then(user => {
+                    let currentChannels = user.val().channel;
+                    if (currentChannels.includes(channel)) {
+                        reject(
+                            "I'm already posting updates to " +
+                                channel +
+                                '. Have some more coffee...'
+                        );
+                    } else {
+                        resolve();
+                        firebase
+                            .database()
+                            .ref('users')
+                            .child(id)
+                            .update({
+                                channel: [...currentChannels, channel]
+                            });
+                    }
+                });
+        });
+    },
+
+    removeChannel(id, channel) {
+        return new Promise((resolve, reject) => {
+            let user = firebase
+                .database()
+                .ref('users')
+                .child(id)
+                .once('value')
+                .then(user => {
+                    let currentChannels = user.val().channel;
+                    if (!currentChannels.includes(channel)) {
+                        reject(
+                            "Err...I couldn't seem to locate " +
+                                channel +
+                                " in your channels. These are the channels I'm currently posting updates to: " +
+                                currentChannels.join(', ')
+                        );
+                    } else if (currentChannels.length === 1) {
+                        reject(
+                            "You need to post status updates to at least one channel. How else will we know you're actually doing work?"
+                        );
+                    } else {
+                        resolve();
+                        firebase
+                            .database()
+                            .ref('users')
+                            .child(id)
+                            .update({
+                                channel: [
+                                    ...currentChannels.filter(
+                                        ch => ch !== channel
+                                    )
+                                ]
+                            });
+                    }
+                });
+        });
     },
 
     deleteUser(id) {

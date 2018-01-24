@@ -195,23 +195,29 @@ const slackInterface = {
     },
     sendChannelUpdate(update, done) {
         updateModel.get(update.user).then(update => {
-            this.webClient.chat.postMessage(
-                update.channel,
-                '',
-                generateAttachment(update),
-                (err, res) => {
-                    err
-                        ? console.log(
-                              `FAILED TO SEND CHANNEL UPDATE TO ${
-                                  update.channel
-                              } FROM ${update.user}: `,
-                              err
-                          )
-                        : console.log('Message sent: ', res);
-                    update.editStatus('ts', res.ts);
-                    done();
-                }
-            );
+            update.channel.forEach((channel, i) => {
+                setTimeout(
+                    () =>
+                        this.webClient.chat.postMessage(
+                            channel,
+                            '',
+                            generateAttachment(update),
+                            (err, res) => {
+                                err
+                                    ? console.log(
+                                          `FAILED TO SEND CHANNEL UPDATE TO ${channel} FROM ${
+                                              update.user
+                                          }: `,
+                                          err
+                                      )
+                                    : console.log('Message sent: ', res);
+                                update.editStatus('ts', res.ts);
+                                done();
+                            }
+                        ),
+                    1000 * i
+                );
+            });
         });
     },
     editChannelUpdate(update, done) {
