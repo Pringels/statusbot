@@ -32,7 +32,7 @@ function commandRouter({ user_id, user_name, text }, response) {
             let channel = text.split(' ')[1];
             if (!channel) {
                 response.end(
-                    'You forgot to send me the channel name you would like to register for. (EG `general`)'
+                    'You forgot to send me the channel name you would like to add. (EG `general`)'
                 );
                 break;
             }
@@ -59,9 +59,72 @@ function commandRouter({ user_id, user_name, text }, response) {
             firebase.deleteUser(user_id);
             response.end(":'( Goodbye " + user_name + ". It's been real.");
             break;
+        case 'add':
+            let newChannel = text.split(' ')[1];
+            if (!newChannel) {
+                response.end(
+                    'You forgot to send me the channel name you would like to remove. (EG `general`)'
+                );
+                break;
+            }
+            if (newChannel.includes('<')) {
+                newChannel = newChannel.split('|')[1].replace('>', '');
+            }
+            firebase
+                .addChannel(user_id, newChannel)
+                .catch(err => {
+                    response.end(err);
+                })
+                .then(() => {
+                    response.end(
+                        'Awesome - I will now share your updates in #' +
+                            newChannel +
+                            " too. DON'T FORGET TO INVITE ME TO THE CHANNEL! (Yes I'm shouting. Get over it)"
+                    );
+                });
+            break;
+        case 'remove':
+            let deleteChannel = text.split(' ')[1];
+            if (!deleteChannel) {
+                response.end(
+                    'You forgot to send me the channel name you would like to register for. (EG `general`)'
+                );
+                break;
+            }
+            if (deleteChannel.includes('<')) {
+                deleteChannel = deleteChannel.split('|')[1].replace('>', '');
+            }
+
+            firebase
+                .removeChannel(user_id, deleteChannel)
+                .catch(err => {
+                    response.end(err);
+                })
+                .then(() => {
+                    response.end(
+                        'Removing you from #' +
+                            deleteChannel +
+                            ". Don't let the door hit you on your way out."
+                    );
+                });
+            break;
+        case 'list':
+            firebase.getUserChannels(user_id).then(channels => {
+                response.end(
+                    'These are the channels I am posting your "work" updates to:\n - #' +
+                        channels.join('\n - #')
+                );
+            });
+            break;
         default:
             response.end(
-                'Type "register" if you would like me to do your status updates for you. EG "register general"\nType "time" to let me know when I should slack you. EG "time 16:20"\nType "cancel" if you want me to stop spamming you.'
+                `Type "register" if you would like me to do your status updates for you. EG "register general"
+                \nType "time" to let me know when I should slack you. EG "time 16:20"
+                \nType "cancel" if you want me to stop spamming you.
+                \nType "add" if you would like me to post your updates to more channels. EG "add general"
+                \nType "remove" if you would like to remove active channels. EG "remove general"
+                \nType "list" if you would like to see which channels I'm posting all your updates to.
+                `
             );
             break;
     }
