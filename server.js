@@ -1,6 +1,6 @@
 const http = require('http');
 const qs = require('querystring');
-const port = 3000;
+const port = 8080;
 let firebase = null;
 
 const requestHandler = (request, response) => {
@@ -131,7 +131,7 @@ const server = http.createServer(requestHandler);
 const serverInterface = {
     init(firebaseInterface) {
         firebase = firebaseInterface;
-        server.listen(port, '0.0.0.0', err => {
+        server.listen(port, err => {
             if (err) {
                 return console.log('something bad happened', err);
             }
