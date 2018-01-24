@@ -123,7 +123,9 @@ function toggleSignIn() {
                 var errorCode = error.code;
                 var errorMessage = error.message;
                 if (errorCode === 'auth/operation-not-allowed') {
-                    alert('You must enable Anonymous auth in the Firebase Console.');
+                    alert(
+                        'You must enable Anonymous auth in the Firebase Console.'
+                    );
                 } else {
                     console.error(error);
                 }

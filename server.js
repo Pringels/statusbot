@@ -45,11 +45,15 @@ function commandRouter({ user_id, user_name, text }, response) {
         case 'time':
             let time = text.split(' ')[1];
             if (!time) {
-                response.end('You forgot to send me the time. Try "time 8:30".');
+                response.end(
+                    'You forgot to send me the time. Try "time 8:30".'
+                );
                 break;
             }
             firebase.setUpdateTime(user_id, time);
-            response.end('Done - I will contact you at ' + time + ' from now on.');
+            response.end(
+                'Done - I will contact you at ' + time + ' from now on.'
+            );
             break;
         case 'cancel':
             firebase.deleteUser(user_id);

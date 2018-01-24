@@ -54,13 +54,29 @@ const updateFactory = {
             fireBaseInterface
                 .getUpdate(id)
                 .once('value')
-                .catch(err => console.log('PROMISE ERROR: fireBaseInterface.getUpdate(id) - ', err))
+                .catch(err =>
+                    console.log(
+                        'PROMISE ERROR: fireBaseInterface.getUpdate(id) - ',
+                        err
+                    )
+                )
                 .then(snapshot => {
                     let updates = snapshot.val();
-                    singleUpdate = updates ? updates[Object.keys(updates)[0]] : null;
-                    let updateRef = updates ? snapshot.child(Object.keys(updates)[0]).ref : null;
-                    var date = singleUpdate ? new Date(singleUpdate.date) : new Date();
-                    resolve(Object.assign({}, update, singleUpdate, { date, ref: updateRef }));
+                    singleUpdate = updates
+                        ? updates[Object.keys(updates)[0]]
+                        : null;
+                    let updateRef = updates
+                        ? snapshot.child(Object.keys(updates)[0]).ref
+                        : null;
+                    var date = singleUpdate
+                        ? new Date(singleUpdate.date)
+                        : new Date();
+                    resolve(
+                        Object.assign({}, update, singleUpdate, {
+                            date,
+                            ref: updateRef
+                        })
+                    );
                 })
         );
     },
@@ -70,14 +86,28 @@ const updateFactory = {
                 .getUpdateByTimeStamp(ts)
                 .once('value')
                 .catch(err =>
-                    console.log('PROMISE ERROR: fireBaseInterface.getUpdateByTimeStamp(id) - ', err)
+                    console.log(
+                        'PROMISE ERROR: fireBaseInterface.getUpdateByTimeStamp(id) - ',
+                        err
+                    )
                 )
                 .then(snapshot => {
                     let updates = snapshot.val();
-                    singleUpdate = updates ? updates[Object.keys(updates)[0]] : null;
-                    let updateRef = updates ? snapshot.child(Object.keys(updates)[0]).ref : null;
-                    var date = singleUpdate ? new Date(singleUpdate.date) : new Date();
-                    resolve(Object.assign({}, update, singleUpdate, { date, ref: updateRef }));
+                    singleUpdate = updates
+                        ? updates[Object.keys(updates)[0]]
+                        : null;
+                    let updateRef = updates
+                        ? snapshot.child(Object.keys(updates)[0]).ref
+                        : null;
+                    var date = singleUpdate
+                        ? new Date(singleUpdate.date)
+                        : new Date();
+                    resolve(
+                        Object.assign({}, update, singleUpdate, {
+                            date,
+                            ref: updateRef
+                        })
+                    );
                 })
         );
     },
@@ -91,7 +121,9 @@ const updateFactory = {
                 date: d.toLocaleString(),
                 channel: user.channel
             })
-            .catch(err => console.error('Error while creating new update: ', err));
+            .catch(err =>
+                console.error('Error while creating new update: ', err)
+            );
     }
 };
 

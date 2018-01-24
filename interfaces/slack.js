@@ -24,7 +24,9 @@ const slackInterface = {
             rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, rtmStartData => {
                 this.getChannelData(rtmStartData);
                 console.log(
-                    `Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}`
+                    `Logged in as ${rtmStartData.self.name} of team ${
+                        rtmStartData.team.name
+                    }`
                 );
             });
             this.webClient = new WebClient(bot_token);
@@ -50,13 +52,23 @@ const slackInterface = {
                     var now = new Date();
                     if (now.getHours() >= user.hours) {
                         updateModel.get(user.id).then(update => {
-                            if (update && update.dateMatchesNow()) {
-                                let { response, done } = update.setStatus(message);
+                            if (
+                                update &&
+                                update.ref &&
+                                update.dateMatchesNow()
+                            ) {
+                                let { response, done } = update.setStatus(
+                                    message
+                                );
                                 tasks.addTask('question', {
                                     text: response,
                                     im: this.ims[user.id]
                                 });
-                                done && tasks.addTask('channelStatusUpdate', update);
+                                done &&
+                                    tasks.addTask(
+                                        'channelStatusUpdate',
+                                        update
+                                    );
                             } else {
                                 updateModel.createNew(message, user);
                                 tasks.addTask('question', {
@@ -80,7 +92,10 @@ const slackInterface = {
                     message.channel[0] !== 'C' &&
                     message.message.user !== 'U6E132Y20'
                 ) {
-                    this.handleEditedMessage(message.message, message.previous_message);
+                    this.handleEditedMessage(
+                        message.message,
+                        message.previous_message
+                    );
                 }
             }
         });
@@ -99,22 +114,42 @@ const slackInterface = {
                 promise.then(update => {
                     updateModel
                         .get(message.user)
-                        .then(update => tasks.addTask('channelStatusEdit', update));
+                        .then(update =>
+                            tasks.addTask('channelStatusEdit', update)
+                        );
                 });
             }
         });
     },
     registerHandlers() {
         const registerRateLimitedBoundHandler = (type, fn) =>
-            tasks.registerTaskHandler(type, fn.bind(this), this.rateLimitTimeout);
-        registerRateLimitedBoundHandler('initialMessage', this.sendInitialUserMessage);
-        registerRateLimitedBoundHandler('channelStatusUpdate', this.sendChannelUpdate);
-        registerRateLimitedBoundHandler('channelStatusEdit', this.editChannelUpdate);
-        registerRateLimitedBoundHandler('commandResponse', this.sendCommandResponse);
+            tasks.registerTaskHandler(
+                type,
+                fn.bind(this),
+                this.rateLimitTimeout
+            );
+        registerRateLimitedBoundHandler(
+            'initialMessage',
+            this.sendInitialUserMessage
+        );
+        registerRateLimitedBoundHandler(
+            'channelStatusUpdate',
+            this.sendChannelUpdate
+        );
+        registerRateLimitedBoundHandler(
+            'channelStatusEdit',
+            this.editChannelUpdate
+        );
+        registerRateLimitedBoundHandler(
+            'commandResponse',
+            this.sendCommandResponse
+        );
         registerRateLimitedBoundHandler('question', this.sendQuestion);
     },
     getChannelData(rtmStartData) {
-        Object.values(rtmStartData.users).map(user => (this.users[user.id] = user.name));
+        Object.values(rtmStartData.users).map(
+            user => (this.users[user.id] = user.name)
+        );
         Object.values(rtmStartData.ims).map(im => (this.ims[im.user] = im.id));
         Object.values(rtmStartData.channels).map(
             channel => (this.channelMap[channel.name] = channel.id)
@@ -147,7 +182,10 @@ const slackInterface = {
             { as_user: true },
             (err, res) => {
                 if (err) {
-                    console.log(`FAILED TO SEND INITIAL USER MESSAGE FOR ${name}`, err);
+                    console.log(
+                        `FAILED TO SEND INITIAL USER MESSAGE FOR ${name}`,
+                        err
+                    );
                 } else {
                     console.log('Message sent: ', res);
                     done();
@@ -164,7 +202,9 @@ const slackInterface = {
                 (err, res) => {
                     err
                         ? console.log(
-                              `FAILED TO SEND CHANNEL UPDATE TO ${update.channel} FROM ${update.user}: `,
+                              `FAILED TO SEND CHANNEL UPDATE TO ${
+                                  update.channel
+                              } FROM ${update.user}: `,
                               err
                           )
                         : console.log('Message sent: ', res);
